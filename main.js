@@ -49,6 +49,7 @@ class Pvforecast extends utils.Adapter {
         this.pvnodeServiceDataFetched = false;
         this.pvnodePlantFetchIndex = 0;
         this.pvnodeNextFetchDelay = null;
+        this.pvnodeDataUpdated = false;
 
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
@@ -319,6 +320,15 @@ class Pvforecast extends utils.Adapter {
             this.updateServiceDataTimeout = null;
             await this.updateServiceDataInterval();
         }, nextRefresh);
+
+        // New pvnode data (e.g. Plus nowcasting every 10 minutes) - update the states right away
+        // instead of waiting for the next run of the 15 minute cron (skipped on startup, onReady does it)
+        if (this.pvnodeDataUpdated) {
+            this.pvnodeDataUpdated = false;
+            if (this.updateActualDataCron) {
+                await this.updateActualDataInterval();
+            }
+        }
     }
 
     prepareData(data) {
@@ -1388,6 +1398,7 @@ class Pvforecast extends utils.Adapter {
                         ack: true,
                     });
                     await this.setState(`plants.${cleanPlantId}.service.message`, { val: 'pvnode', ack: true });
+                    this.pvnodeDataUpdated = true;
                     await this.setState(`plants.${cleanPlantId}.place`, { val: '-', ack: true });
                 } catch (error) {
                     this.handleServiceError(error);
@@ -1526,6 +1537,7 @@ class Pvforecast extends utils.Adapter {
                 }
 
                 this.pvnodeServiceDataFetched = true;
+                this.pvnodeDataUpdated = true;
             } catch (error) {
                 this.handleServiceError(error);
             }

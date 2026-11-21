@@ -41,6 +41,9 @@ Provides forecast data from [forecast.solar](https://forecast.solar), [Solcast](
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+- (@patricknitsch) pvnode: Update the forecast states directly after each new pvnode request (Plus: every 10 minutes) instead of waiting for the 15 minute cron
+
 ### 7.0.0 (2026-11-19)
 - (copilot) Adapter requires node.js >= 22.19.0 now
 - (@patricknitsch) Change Free Tier Forecast from only today to today and tomorrow
